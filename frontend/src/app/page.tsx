@@ -4,17 +4,27 @@ import { useState } from "react";
 
 const API_URL = "http://127.0.0.1:8000";
 
+type ChatMessage = {
+  question: string;
+  answer: string;
+  subject: string;
+  learningMode: string;
+};
+
 export default function Home() {
   const [question, setQuestion] = useState("");
   const [subject, setSubject] = useState("General");
   const [learningMode, setLearningMode] = useState("Beginner");
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
 
   const handleStartLearning = async () => {
     if (!question.trim()) {
       return;
     }
+
+    const currentQuestion = question.trim();
 
     setLoading(true);
     setAnswer("");
@@ -26,9 +36,9 @@ export default function Home() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          question: question.trim(),
-            subject,
-  learning_mode: learningMode,
+          question: currentQuestion,
+          subject,
+          learning_mode: learningMode,
         }),
       });
 
@@ -39,6 +49,18 @@ export default function Home() {
       const data = await response.json();
 
       setAnswer(data.answer);
+
+      setChatHistory((previousHistory) => [
+        ...previousHistory,
+        {
+          question: currentQuestion,
+          answer: data.answer,
+          subject,
+          learningMode,
+        },
+      ]);
+
+      setQuestion("");
     } catch (error) {
       console.error(error);
       setAnswer(
@@ -47,6 +69,11 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const clearChatHistory = () => {
+    setChatHistory([]);
+    setAnswer("");
   };
 
   return (
@@ -115,7 +142,9 @@ export default function Home() {
                   <option value="Beginner">Beginner</option>
                   <option value="Intermediate">Intermediate</option>
                   <option value="Advanced">Advanced</option>
-                  <option value="Exam Preparation">Exam Preparation</option>
+                  <option value="Exam Preparation">
+                    Exam Preparation
+                  </option>
                 </select>
               </div>
             </div>
@@ -148,6 +177,49 @@ export default function Home() {
               </div>
             )}
           </div>
+
+          {chatHistory.length > 0 && (
+            <div className="mt-10 w-full max-w-2xl text-left">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-xl font-semibold">Learning History</h3>
+
+                <button
+                  type="button"
+                  onClick={clearChatHistory}
+                  className="text-sm text-slate-400 transition hover:text-white"
+                >
+                  Clear History
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {chatHistory.map((chat, index) => (
+                  <div
+                    key={index}
+                    className="rounded-2xl border border-slate-800 bg-slate-900 p-5"
+                  >
+                    <div className="mb-3 flex flex-wrap gap-2 text-xs">
+                      <span className="rounded-full bg-indigo-500/10 px-3 py-1 text-indigo-300">
+                        {chat.subject}
+                      </span>
+
+                      <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-emerald-300">
+                        {chat.learningMode}
+                      </span>
+                    </div>
+
+                    <p className="font-medium text-white">
+                      Q: {chat.question}
+                    </p>
+
+                    <div className="mt-3 border-t border-slate-800 pt-3 text-sm leading-7 text-slate-300">
+                      {chat.answer}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
 
         <footer className="mt-10 text-center text-sm text-slate-600">
