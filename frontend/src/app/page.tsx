@@ -6,6 +6,8 @@ const API_URL = "http://127.0.0.1:8000";
 
 export default function Home() {
   const [question, setQuestion] = useState("");
+  const [subject, setSubject] = useState("General");
+  const [learningMode, setLearningMode] = useState("Beginner");
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -25,6 +27,8 @@ export default function Home() {
         },
         body: JSON.stringify({
           question: question.trim(),
+            subject,
+  learning_mode: learningMode,
         }),
       });
 
@@ -78,16 +82,54 @@ export default function Home() {
           </p>
 
           <div className="mt-10 w-full max-w-2xl rounded-2xl border border-slate-800 bg-slate-900 p-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="text-left">
+                <label className="mb-2 block text-sm font-medium text-slate-300">
+                  Subject
+                </label>
+
+                <select
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-indigo-500"
+                >
+                  <option value="General">General</option>
+                  <option value="Computer Science">Computer Science</option>
+                  <option value="Mathematics">Mathematics</option>
+                  <option value="Science">Science</option>
+                  <option value="English">English</option>
+                  <option value="Business">Business</option>
+                </select>
+              </div>
+
+              <div className="text-left">
+                <label className="mb-2 block text-sm font-medium text-slate-300">
+                  Learning Mode
+                </label>
+
+                <select
+                  value={learningMode}
+                  onChange={(e) => setLearningMode(e.target.value)}
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-indigo-500"
+                >
+                  <option value="Beginner">Beginner</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Advanced">Advanced</option>
+                  <option value="Exam Preparation">Exam Preparation</option>
+                </select>
+              </div>
+            </div>
+
             <textarea
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               placeholder="What do you want to learn today?"
-              className="min-h-32 w-full resize-none bg-transparent p-3 text-white outline-none placeholder:text-slate-500"
+              className="mt-4 min-h-32 w-full resize-none rounded-xl border border-slate-800 bg-slate-950 p-3 text-white outline-none placeholder:text-slate-500 focus:border-indigo-500"
             />
 
             <div className="mt-3 flex items-center justify-between border-t border-slate-800 pt-3">
               <span className="text-sm text-slate-500">
-                Ask your first question
+                {subject} • {learningMode}
               </span>
 
               <button
